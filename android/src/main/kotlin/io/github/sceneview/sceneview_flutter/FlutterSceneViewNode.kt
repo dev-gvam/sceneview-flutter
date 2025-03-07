@@ -30,7 +30,6 @@ abstract class FlutterSceneViewNode(
     }
 }
 
-
 class FlutterReferenceNode(
     val fileLocation: String,
     position: Float3,

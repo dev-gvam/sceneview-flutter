@@ -15,10 +15,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late final SceneViewController controller;
+
   @override
   void initState() {
     checkCameraPermission();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -32,14 +40,24 @@ class _MyAppState extends State<MyApp> {
           children: [
             SceneView(
               onViewCreated: (controller) {
-                print('flutter: onViewCreated');
-                controller.addNode(SceneViewNode(
-                  fileLocation: 'assets/models/MaterialSuite.glb',
-                  position: KotlinFloat3(z: -1.0),
-                  rotation: KotlinFloat3(x: 15),
-                ));
+                this.controller = controller;
               },
             ),
+            Positioned(
+              bottom: 0,
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    controller.addNode(SceneViewNode(
+                      fileLocation: 'assets/models/MaterialSuite.glb',
+                      position: KotlinFloat3(z: -1.0),
+                      rotation: KotlinFloat3(x: 15),
+                    ));
+                  },
+                  child: Text("Test Anchor"),
+                ),
+              ),
+            )
           ],
         ),
       ),
