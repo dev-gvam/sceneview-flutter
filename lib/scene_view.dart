@@ -10,10 +10,10 @@ import 'package:sceneview_flutter/sceneview_controller.dart';
 class SceneView extends StatefulWidget {
   const SceneView({
     super.key,
-    this.onViewCreated,
+    required this.onSessionCreated,
   });
 
-  final Function(SceneViewController)? onViewCreated;
+  final Function(SceneViewController) onSessionCreated;
 
   @override
   State<SceneView> createState() => _SceneViewState();
@@ -21,6 +21,17 @@ class SceneView extends StatefulWidget {
 
 class _SceneViewState extends State<SceneView> {
   final Completer<SceneViewController> _controller = Completer<SceneViewController>();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _disposeController();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,27 +61,19 @@ class _SceneViewState extends State<SceneView> {
           },
         )
           ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
-          ..addOnPlatformViewCreatedListener((id) {
-            onPlatformViewCreated(id);
-          });
+          ..addOnPlatformViewCreatedListener((id) => _onPlatformViewCreated(id));
       },
     );
   }
 
-  Future<void> onPlatformViewCreated(int id) async {
-    final controller = await SceneViewController.init(id);
-    _controller.complete(controller);
-    widget.onViewCreated?.call(controller);
-  }
-
-  @override
-  void dispose() {
-    _disposeController();
-    super.dispose();
+  Future<void> _onPlatformViewCreated(int id) async {
+    await SceneViewController.init(id).then(widget.onSessionCreated);
   }
 
   Future<void> _disposeController() async {
-    final SceneViewController controller = await _controller.future;
-    controller.dispose();
+    if (_controller.isCompleted) {
+      final SceneViewController controller = await _controller.future;
+      await controller.dispose();
+    }
   }
 }

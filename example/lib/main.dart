@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late final SceneViewController controller;
+  late final SceneViewController sceneViewCtrl;
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    controller.dispose();
+    sceneViewCtrl.dispose();
     super.dispose();
   }
 
@@ -39,8 +39,8 @@ class _MyAppState extends State<MyApp> {
         body: Stack(
           children: [
             SceneView(
-              onViewCreated: (controller) {
-                this.controller = controller;
+              onSessionCreated: (controller) {
+                sceneViewCtrl = controller;
               },
             ),
             Positioned(
@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
               child: Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    controller.addNode(SceneViewNode(
+                    sceneViewCtrl.addNode(SceneViewNode(
                       fileLocation: 'assets/models/MaterialSuite.glb',
                       position: KotlinFloat3(z: -1.0),
                       rotation: KotlinFloat3(x: 15),

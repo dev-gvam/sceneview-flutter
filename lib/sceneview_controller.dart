@@ -1,25 +1,33 @@
+import 'dart:async';
+
 import 'package:sceneview_flutter/sceneview_flutter_platform_interface.dart';
 import 'package:sceneview_flutter/sceneview_node.dart';
 
 class SceneViewController {
-  SceneViewController._({
-    required this.sceneId,
-  });
-
   final int sceneId;
+  final sessionCreatedCompleter = Completer<SceneViewController>();
 
-  static Future<SceneViewController> init(
-    int sceneId,
-  ) async {
+  SceneViewController._(this.sceneId);
+
+  static Future<SceneViewController> init(int sceneId) async {
+    final controller = SceneViewController._(sceneId);
+
+    SceneviewFlutterPlatform.instance.onSessionCreated(() {
+      if (!controller.sessionCreatedCompleter.isCompleted) {
+        controller.sessionCreatedCompleter.complete(controller);
+      }
+    });
+
     await SceneviewFlutterPlatform.instance.init(sceneId);
-    return SceneViewController._(sceneId: sceneId);
+
+    return controller.sessionCreatedCompleter.future;
   }
 
   void addNode(SceneViewNode node) {
     SceneviewFlutterPlatform.instance.addNode(node);
   }
 
-  void dispose() {
+  Future<void> dispose() async {
     SceneviewFlutterPlatform.instance.dispose(sceneId);
   }
 }
