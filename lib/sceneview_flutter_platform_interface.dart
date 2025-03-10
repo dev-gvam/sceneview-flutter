@@ -29,7 +29,5 @@ abstract class SceneviewFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('dispose() has not been implemented.');
   }
 
-  void onSessionCreated(Function() callback) {
-    throw UnimplementedError('onSessionCreated() has not been implemented.');
-  }
+  void registerEventHandler(String eventType, Function(dynamic) callback);
 }

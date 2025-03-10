@@ -4,7 +4,7 @@ SceneView is a [Sceneform Maintained](https://github.com/SceneView/sceneview-and
 
 
 TODO
-- [] Optimizar forma en la que se evaluan los eventos del EventChannel como en el handleMethodChannel
+- [OK] Optimizar forma en la que se evaluan los eventos del EventChannel como en el handleMethodChannel
 - [] Revisar y refactorizar el codigo
 - [] Revisar la forma en la que se dispone el controller
 - [] Revisar si se pueden controlar los eventos del pause y resume en flutter

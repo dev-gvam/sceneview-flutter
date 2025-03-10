@@ -5,22 +5,22 @@ import 'package:sceneview_flutter/sceneview_node.dart';
 
 class SceneViewController {
   final int sceneId;
-  final sessionCreatedCompleter = Completer<SceneViewController>();
+  final _sessionCreatedCompleter = Completer<SceneViewController>();
 
   SceneViewController._(this.sceneId);
 
   static Future<SceneViewController> init(int sceneId) async {
     final controller = SceneViewController._(sceneId);
 
-    SceneviewFlutterPlatform.instance.onSessionCreated(() {
-      if (!controller.sessionCreatedCompleter.isCompleted) {
-        controller.sessionCreatedCompleter.complete(controller);
+    SceneviewFlutterPlatform.instance.registerEventHandler("onSessionCreated", (data) {
+      if (data == true && !controller._sessionCreatedCompleter.isCompleted) {
+        controller._sessionCreatedCompleter.complete(controller);
       }
     });
 
     await SceneviewFlutterPlatform.instance.init(sceneId);
 
-    return controller.sessionCreatedCompleter.future;
+    return controller._sessionCreatedCompleter.future;
   }
 
   void addNode(SceneViewNode node) {

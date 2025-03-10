@@ -18,7 +18,7 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
   MethodChannel? _methodChannel;
   EventChannel? _eventChannel;
   StreamSubscription<dynamic>? _eventChannelSubscription;
-  Function()? _onSessionCreated;
+  final Map<String, Function(dynamic)> _eventHandlers = {};
 
   @override
   Future<void> init(int sceneId) async {
@@ -46,8 +46,8 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
   }
 
   @override
-  void onSessionCreated(Function() callback) {
-    _handleSessionCreated(callback);
+  void registerEventHandler(String eventType, Function(dynamic) callback) {
+    _eventHandlers[eventType] = callback;
   }
 
   MethodChannel _ensureMethodChannelInitialized(int sceneId) {
@@ -72,22 +72,32 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
     if (channel == null) {
       channel = EventChannel('sceneview_event_$sceneId');
       _eventChannelSubscription = channel.receiveBroadcastStream().listen(
-        (event) {
-          if (event is Map<dynamic, dynamic>) {
-            bool sessionCreated = event['sessionCreated'] ?? false;
-            if (sessionCreated) _onSessionCreated?.call();
-          }
-        },
-        onError: (e) {
-          print("--> Error in EventChannel: $e");
-        },
-      );
+            _handleEventCall,
+            onError: _handleEventError,
+          );
       _eventChannel = channel;
     }
     return channel;
   }
 
-  void _handleSessionCreated(Function() callback) {
-    _onSessionCreated = callback;
+  void _handleEventCall(dynamic event) {
+    if (event is Map<dynamic, dynamic>) {
+      String eventType = event['type'] ?? "";
+
+      switch (eventType) {
+        case 'onSessionCreated':
+          bool data = event['data'] ?? false;
+          _eventHandlers[eventType]?.call(data);
+          break;
+
+        default:
+          _handleEventError("Unhandled event type: $eventType");
+          break;
+      }
+    } else {
+      _handleEventError("Event is not a Map<dynamic, dynamic>");
+    }
   }
+
+  void _handleEventError(dynamic e) => print("--> Error in EventChannel: $e");
 }

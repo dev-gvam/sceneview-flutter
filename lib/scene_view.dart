@@ -13,7 +13,7 @@ class SceneView extends StatefulWidget {
     required this.onSessionCreated,
   });
 
-  final Function(SceneViewController) onSessionCreated;
+  final void Function(SceneViewController) onSessionCreated;
 
   @override
   State<SceneView> createState() => _SceneViewState();

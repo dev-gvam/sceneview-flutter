@@ -77,7 +77,8 @@ class SceneViewWrapper(
             onSessionCreated = { session ->
                 Log.i(TAG, "onSessionCreated ${session.hashCode()}")
                 isSessionReady = true
-                eventSink?.success(mapOf("sessionCreated" to true))
+                val event = mapOf("type" to "onSessionCreated", "data" to true)
+                eventSink?.success(event)
             },
             onSessionResumed = { session ->
                 Log.i(TAG, "onSessionResumed")
