@@ -170,6 +170,13 @@ class SceneViewWrapper(
         }
         return model?.let {
             ModelNode(modelInstance = model, scaleToUnits = 1.0f).apply {
+                isTouchable = true
+                onSingleTapConfirmed = {
+                    _ ->
+                    val event = mapOf("type" to "nodeTouched", "data" to "12345")
+                    eventSink?.success(event)
+                    true
+                }
                 transform(
                     position = flutterNode.position,
                     rotation = flutterNode.rotation

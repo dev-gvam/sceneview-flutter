@@ -41,6 +41,9 @@ class _MyAppState extends State<MyApp> {
             SceneView(
               onSessionCreated: (controller) {
                 sceneViewCtrl = controller;
+                sceneViewCtrl.onNodeTouched.listen((data) {
+                  print("--> Node $data");
+                });
               },
             ),
             Positioned(

@@ -8,12 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:sceneview_flutter/sceneview_controller.dart';
 
 class SceneView extends StatefulWidget {
+  final void Function(SceneViewController) onSessionCreated;
+
   const SceneView({
     super.key,
     required this.onSessionCreated,
   });
-
-  final void Function(SceneViewController) onSessionCreated;
 
   @override
   State<SceneView> createState() => _SceneViewState();

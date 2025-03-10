@@ -89,6 +89,10 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
           bool data = event['data'] ?? false;
           _eventHandlers[eventType]?.call(data);
           break;
+        case 'nodeTouched':
+          String data = event['data'] ?? "";
+          _eventHandlers[eventType]?.call(data);
+          break;
 
         default:
           _handleEventError("Unhandled event type: $eventType");
