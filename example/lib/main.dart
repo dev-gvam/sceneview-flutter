@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sceneview_flutter/sceneview_flutter.dart';
-import 'package:sceneview_flutter/sceneview_node.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,11 +50,28 @@ class _MyAppState extends State<MyApp> {
               child: Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    sceneViewCtrl.addNode(SceneViewNode(
-                      fileLocation: 'assets/models/MaterialSuite.glb',
-                      position: KotlinFloat3(z: -1.0),
-                      rotation: KotlinFloat3(x: 15),
-                    ));
+                    sceneViewCtrl.loadPositions(
+                      modelFilePath: "assets/models/map_pointer.glb",
+                      positions: [
+                        GeoPosition(
+                            id: "Ed 1",
+                            latitude: 40.44381554709421,
+                            longitude: -3.702070465140602,
+                            altitude: 776.8478780826553),
+                        GeoPosition(
+                            id: "Ed 2",
+                            latitude: 40.44484051970683,
+                            longitude: -3.7027837330439666,
+                            altitude: 793.747869747690),
+                        GeoPosition(
+                            id: "Mechero", latitude: 40.44669338074851, longitude: -3.694475398363029, altitude: 853.0),
+                        GeoPosition(
+                            id: "Fuente delfines",
+                            latitude: 40.44516877547935,
+                            longitude: -3.685491388146533,
+                            altitude: 800.0),
+                      ],
+                    );
                   },
                   child: Text("Test Anchor"),
                 ),
@@ -68,9 +84,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   void checkCameraPermission() async {
-    var status = await Permission.camera.status;
-    if (!status.isGranted) {
+    var cameraStatus = await Permission.camera.status;
+    if (!cameraStatus.isGranted) {
       await Permission.camera.request();
+    }
+    var geolocationStatus = await Permission.location.status;
+    if (!geolocationStatus.isGranted) {
+      await Permission.location.request();
     }
   }
 }

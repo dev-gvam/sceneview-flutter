@@ -20,4 +20,5 @@ dev_dependencies:
 
 flutter:
   assets:
-    - assets/models/MaterialSuite.glb
+    - assets/
+    - assets/models/

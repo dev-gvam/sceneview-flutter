@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:sceneview_flutter/scene_view_models.dart';
 import 'package:sceneview_flutter/sceneview_flutter_platform_interface.dart';
 import 'package:sceneview_flutter/sceneview_node.dart';
 
@@ -32,11 +33,15 @@ class SceneViewController {
     return controller._sessionCreatedCompleter.future;
   }
 
+  Future<void> dispose() async {
+    SceneviewFlutterPlatform.instance.dispose(sceneId);
+  }
+
   void addNode(SceneViewNode node) {
     SceneviewFlutterPlatform.instance.addNode(node);
   }
 
-  Future<void> dispose() async {
-    SceneviewFlutterPlatform.instance.dispose(sceneId);
+  void loadPositions({required String modelFilePath, required List<GeoPosition> positions}) {
+    SceneviewFlutterPlatform.instance.loadPositions(modelFilePath, positions);
   }
 }

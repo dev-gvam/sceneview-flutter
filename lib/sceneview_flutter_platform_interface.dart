@@ -1,4 +1,5 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:sceneview_flutter/scene_view_models.dart';
 import 'package:sceneview_flutter/sceneview_node.dart';
 
 import 'sceneview_flutter_method_channel.dart';
@@ -21,12 +22,16 @@ abstract class SceneviewFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('init() has not been implemented.');
   }
 
+  Future<void> dispose(int sceneId) async {
+    throw UnimplementedError('dispose() has not been implemented.');
+  }
+
   void addNode(SceneViewNode node) {
     throw UnimplementedError('addNode() has not been implemented.');
   }
 
-  Future<void> dispose(int sceneId) async {
-    throw UnimplementedError('dispose() has not been implemented.');
+  void loadPositions(String modelFilePath, List<GeoPosition> positions) {
+    throw UnimplementedError('loadPositions() has not been implemented.');
   }
 
   void registerEventHandler(String eventType, Function(dynamic) callback);

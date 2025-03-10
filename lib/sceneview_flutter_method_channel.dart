@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:sceneview_flutter/scene_view_models.dart';
 import 'package:sceneview_flutter/sceneview_node.dart';
 
 import 'sceneview_flutter_platform_interface.dart';
@@ -43,6 +44,14 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
   @override
   void addNode(SceneViewNode node) {
     _methodChannel?.invokeMethod('addNode', node.toMap());
+  }
+
+  @override
+  void loadPositions(String modelFilePath, List<GeoPosition> positions) {
+    _methodChannel?.invokeListMethod('loadPositions', {
+      "modelFilePath": modelFilePath,
+      "positions": positions.map((m) => m.toJson()).toList(),
+    });
   }
 
   @override
