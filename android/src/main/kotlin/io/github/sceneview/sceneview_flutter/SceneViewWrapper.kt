@@ -62,7 +62,7 @@ class SceneViewWrapper(
                 Log.i(TAG, "containerView attached, delaying initialization")
                 containerView.postDelayed({
                     initializeSceneView(context)
-                }, 50)
+                }, 200)
                 containerView.removeOnAttachStateChangeListener(this)
             }
             override fun onViewDetachedFromWindow(v: View) {}
