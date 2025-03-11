@@ -34,5 +34,9 @@ abstract class SceneviewFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('loadPositions() has not been implemented.');
   }
 
+  void filterPositions(List<String> filters) {
+    throw UnimplementedError('filterPositions() has not been implemented.');
+  }
+
   void registerEventHandler(String eventType, Function(dynamic) callback);
 }

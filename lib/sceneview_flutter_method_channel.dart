@@ -55,6 +55,11 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
   }
 
   @override
+  void filterPositions(List<String> filters) {
+    _methodChannel?.invokeListMethod('filterPositions', filters);
+  }
+
+  @override
   void registerEventHandler(String eventType, Function(dynamic) callback) {
     _eventHandlers[eventType] = callback;
   }

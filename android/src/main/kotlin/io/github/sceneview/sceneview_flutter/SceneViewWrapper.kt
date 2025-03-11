@@ -10,7 +10,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
 import com.google.ar.core.Config
+import com.google.ar.core.Earth
 import com.google.ar.core.Session
+import com.google.ar.core.TrackingState
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -24,6 +26,7 @@ import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ModelNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SceneViewWrapper(
@@ -121,7 +124,6 @@ class SceneViewWrapper(
     }
 
     override fun getView(): View {
-        Log.i(TAG, "getView() called")
         return containerView
     }
 
@@ -162,6 +164,19 @@ class SceneViewWrapper(
     }
 
     private suspend fun loadPositions(loader: GeoPositionLoader) {
+        var session: Session? = null
+        var earth: Earth? = null
+
+        while (sceneView == null || sceneView?.session.also { session = it } == null || session?.earth.also { earth = it } == null) {
+            Log.i(TAG, "Esperando inicialización de sceneView, session y earth...")
+            delay(100)
+        }
+
+        while (earth?.trackingState != TrackingState.TRACKING) {
+            Log.i(TAG, "Esperando TRACKING...")
+            delay(100)
+        }
+        Log.i(TAG, "NODES START -> ${sceneView?.childNodes?.size}")
         for (position in loader.positions) {
             val earthAnchorNode = createEarthAnchorNode(position)
             if(earthAnchorNode != null) {
@@ -180,13 +195,16 @@ class SceneViewWrapper(
                     Log.i(TAG, "Scale $scale")
                     if(modelNode != null) {
                         Utils.rotateModelX(modelNode)
-                        earthAnchorNode.addChildNode(modelNode)
+                        earthAnchorNode.addChildNode(modelNode).apply {
+                            name = position.type
+                        }
                         sceneView?.addChildNode(earthAnchorNode)
-                        Log.i(TAG, "Anchor created ${cameraPose.altitude} - ${position.id} ${position.altitude}")
+                        Log.i(TAG, "Anchor created ${position.id}")
                     }
                 }
             }
         }
+        Log.i(TAG, "NODES END -> ${sceneView?.childNodes?.size}")
     }
 
     private fun createEarthAnchorNode(geoPose: GeoPosition): AnchorNode? {
@@ -220,6 +238,13 @@ class SceneViewWrapper(
         }
     }
 
+    private fun filterPositions(filters: List<String>) {
+        sceneView?.childNodes?.forEach {
+            node ->
+            node.isVisible = filters.isEmpty() || filters.contains(node.name)
+        }
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "init" -> result.success(null)
@@ -242,6 +267,13 @@ class SceneViewWrapper(
                 val positionLoader = GeoPositionLoader.fromJson(call.arguments as Map<String, *>)
                 _mainScope.launch {
                     loadPositions(positionLoader)
+                }
+                result.success(null)
+            }
+            "filterPositions" -> {
+                val filterType = (call.arguments as List<String>)
+                _mainScope.launch {
+                    filterPositions(filterType)
                 }
                 result.success(null)
             }

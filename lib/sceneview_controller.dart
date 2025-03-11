@@ -44,4 +44,8 @@ class SceneViewController {
   void loadPositions({required String modelFilePath, required List<GeoPosition> positions}) {
     SceneviewFlutterPlatform.instance.loadPositions(modelFilePath, positions);
   }
+
+  void filterPositions({required List<String> filters}) {
+    SceneviewFlutterPlatform.instance.filterPositions(filters);
+  }
 }

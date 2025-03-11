@@ -22,14 +22,16 @@ class GeoPositionLoader(
 
 data class GeoPosition(
     val id: String,
+    val type: String,
     val latitude: Double,
     val longitude: Double,
     val altitude: Double,
 ) {
     companion object {
-        fun fromGeospatialPose(geospatialPose: GeospatialPose, id: String = ""): GeoPosition {
+        fun fromGeospatialPose(geospatialPose: GeospatialPose, id: String = "", type: String = ""): GeoPosition {
             return GeoPosition(
                 id = id,
+                type = type,
                 latitude = geospatialPose.latitude,
                 longitude = geospatialPose.longitude,
                 altitude = geospatialPose.altitude
@@ -38,6 +40,7 @@ data class GeoPosition(
         fun fromJson(map: Map<String, *>): GeoPosition {
             return GeoPosition(
                 id = (map["id"] as String),
+                type = (map["type"] as String),
                 latitude = (map["latitude"] as Double),
                 longitude = (map["longitude"] as Double),
                 altitude = (map["altitude"] as Double),
