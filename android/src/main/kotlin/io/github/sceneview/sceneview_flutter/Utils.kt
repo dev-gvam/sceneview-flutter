@@ -2,19 +2,35 @@ package io.github.sceneview.sceneview_flutter
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import io.flutter.embedding.engine.loader.FlutterLoader
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.ModelNode
+import java.io.IOException
 
 
 class Utils {
     companion object{
-        fun getFlutterAssetKey(context:Context, flutterAsset: String): String {
+        fun getFlutterAssetKey(context: Context, flutterAsset: String): String {
             Log.d("Utils", flutterAsset)
             val loader = FlutterLoader()
             loader.startInitialization(context)
             return loader.getLookupKeyForAsset(flutterAsset)
+        }
+        fun getBitmapFromFlutterAsset(context: Context, flutterAsset: String): Bitmap? {
+            return try {
+                val assetKey = getFlutterAssetKey(context, flutterAsset)
+                val assetManager = context.assets
+                val inputStream = assetManager.open(assetKey)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                bitmap
+            } catch (e: IOException) {
+                Log.e("Utils", "Error al cargar el asset: $flutterAsset", e)
+                null
+            }
         }
         fun calculateScale(
             distance: Double,

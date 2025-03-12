@@ -22,12 +22,15 @@ import io.flutter.plugin.platform.PlatformView
 import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.collision.Sphere
+import io.github.sceneview.math.Size
 import io.github.sceneview.model.ModelInstance
+import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.sqrt
 
 class SceneViewWrapper(
     context: Context,
@@ -176,7 +179,17 @@ class SceneViewWrapper(
             Log.i(TAG, "Esperando TRACKING...")
             delay(100)
         }
-        Log.i(TAG, "NODES START -> ${sceneView?.childNodes?.size}")
+        var pose = earth!!.cameraGeospatialPose
+
+        Log.i(TAG, "POSE ${pose.orientationYawAccuracy} -- ${pose.horizontalAccuracy} -- ${pose.verticalAccuracy}")
+        while (pose.horizontalAccuracy < 3.0f || pose.verticalAccuracy < 3.0f) {
+            Log.i(TAG, "Esperando POSE...")
+            Log.i(TAG, "POSE ${pose.horizontalAccuracy} -- ${pose.verticalAccuracy}")
+            pose = earth!!.cameraGeospatialPose
+            delay(100)
+        }
+
+
         for (position in loader.positions) {
             val earthAnchorNode = createEarthAnchorNode(position)
             if(earthAnchorNode != null) {
@@ -190,16 +203,16 @@ class SceneViewWrapper(
                         cameraPose.longitude,
                         results
                     )
-                    val scale = Utils.calculateScale(results[0].toDouble())
-                    val modelNode = createModelNodeFromFlutterAsset(position.id, loader.modelFilePath, scale)
-                    Log.i(TAG, "Scale $scale")
+                    //val scale = Utils.calculateScale(results[0].toDouble())
+                    val scale = Utils.calculateScale(results[0].toDouble(), minScale = 0.1f, maxScale = 3.0f)
+                    //val modelNode = createModelNodeFromFlutterAsset(position.id, loader.modelFilePath, scale)
+                    val modelNode = createImageNodeFromFlutterAsset(position.id, loader.modelFilePath, scale)
                     if(modelNode != null) {
-                        Utils.rotateModelX(modelNode)
+                        //Utils.rotateModelX(modelNode)
                         earthAnchorNode.addChildNode(modelNode).apply {
                             name = position.type
                         }
                         sceneView?.addChildNode(earthAnchorNode)
-                        Log.i(TAG, "Anchor created ${position.id}")
                     }
                 }
             }
@@ -235,6 +248,41 @@ class SceneViewWrapper(
                     true
                 }
             }
+        }
+    }
+
+    private suspend fun createImageNodeFromFlutterAsset(id: String, assetFilePath: String, scale: Float = 1.0f): ImageNode? {
+        val bitmap = Utils.getBitmapFromFlutterAsset(activity, assetFilePath)
+
+        return if (bitmap != null) {
+            val materialLoader = sceneView?.materialLoader ?: return null
+            val imageWidth = scale * bitmap.width.toFloat()
+            val imageHeight = scale * bitmap.height.toFloat()
+
+            val diagonal = sqrt((imageWidth * imageWidth) + (imageHeight * imageHeight))
+            val sphereRadius = (diagonal / 2) * 1.1f
+            val imageNode = ImageNode(
+                materialLoader = materialLoader,
+                bitmap = bitmap,
+                size = Size(imageWidth, imageHeight)
+            ).apply {
+                collisionShape = Sphere(sphereRadius)
+                isTouchable = true
+                onSingleTapConfirmed = {
+                        _ ->
+                    val event = mapOf("type" to "nodeTouched", "data" to id)
+                    eventSink?.success(event)
+                    true
+                }
+            }
+            imageNode.onFrame = {
+                val cameraNode = sceneView!!.cameraNode
+
+            }
+            imageNode
+        } else {
+            Log.e(TAG, "Can't load asset: $assetFilePath")
+            null
         }
     }
 
