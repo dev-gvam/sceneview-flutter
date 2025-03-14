@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
 import 'package:sceneview_flutter/sceneview_flutter.dart';
 import 'package:sceneview_flutter/sceneview_node.dart';
 

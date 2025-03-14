@@ -8,20 +8,19 @@ import 'package:flutter/services.dart';
 import 'package:sceneview_flutter/sceneview_controller.dart';
 
 class SceneView extends StatefulWidget {
+  final Function(SceneViewController)? onViewCreated;
+
   const SceneView({
     super.key,
     this.onViewCreated,
   });
-
-  final Function(SceneViewController)? onViewCreated;
 
   @override
   State<SceneView> createState() => _SceneViewState();
 }
 
 class _SceneViewState extends State<SceneView> {
-  final Completer<SceneViewController> _controller =
-      Completer<SceneViewController>();
+  final Completer<SceneViewController> _controller = Completer<SceneViewController>();
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +50,7 @@ class _SceneViewState extends State<SceneView> {
           },
         )
           ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
-          ..addOnPlatformViewCreatedListener((id) {
-            onPlatformViewCreated(id);
-          });
+          ..addOnPlatformViewCreatedListener((id) => onPlatformViewCreated(id));
       },
     );
   }

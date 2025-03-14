@@ -17,18 +17,6 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
 
   MethodChannel? _channel;
 
-  MethodChannel ensureChannelInitialized(int sceneId) {
-    MethodChannel? channel = _channel;
-    if (channel == null) {
-      channel = MethodChannel('scene_view_$sceneId');
-      channel.setMethodCallHandler(
-              (MethodCall call) => _handleMethodCall(call, sceneId));
-      _channel = channel;
-    }
-    return channel;
-  }
-
-
   @override
   Future<void> init(int sceneId) async {
     final channel = ensureChannelInitialized(sceneId);
@@ -36,8 +24,21 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
   }
 
   @override
+  void dispose(int sceneId) {}
+
+  @override
   void addNode(SceneViewNode node) {
     _channel?.invokeMethod('addNode', node.toMap());
+  }
+
+  MethodChannel ensureChannelInitialized(int sceneId) {
+    MethodChannel? channel = _channel;
+    if (channel == null) {
+      channel = MethodChannel('scene_view_$sceneId');
+      channel.setMethodCallHandler((MethodCall call) => _handleMethodCall(call, sceneId));
+      _channel = channel;
+    }
+    return channel;
   }
 
   Future<dynamic> _handleMethodCall(MethodCall call, int mapId) async {
@@ -46,7 +47,4 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
         throw MissingPluginException();
     }
   }
-
-  @override
-  void dispose(int sceneId) {}
 }
