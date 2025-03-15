@@ -11,11 +11,11 @@ class SceneViewController {
     return SceneViewController._(sceneId);
   }
 
-  void addNode(SceneViewNode node) {
-    SceneviewFlutterPlatform.instance.addNode(node);
+  Future<bool> dispose() async {
+    return await SceneviewFlutterPlatform.instance.dispose();
   }
 
-  void dispose() {
-    SceneviewFlutterPlatform.instance.dispose(sceneId);
+  void addNode(SceneViewNode node) {
+    SceneviewFlutterPlatform.instance.addNode(node);
   }
 }

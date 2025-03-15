@@ -28,7 +28,7 @@ abstract class SceneviewFlutterPlatform extends PlatformInterface {
     throw UnimplementedError('init() has not been implemented.');
   }
 
-  void dispose(int sceneId) {
+  Future<bool> dispose() async {
     throw UnimplementedError('dispose() has not been implemented.');
   }
 

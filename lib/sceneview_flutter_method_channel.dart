@@ -19,19 +19,25 @@ class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
 
   @override
   Future<void> init(int sceneId) async {
-    final channel = ensureChannelInitialized(sceneId);
+    final channel = _ensureChannelInitialized(sceneId);
     return channel.invokeMethod<void>('init');
   }
 
   @override
-  void dispose(int sceneId) {}
+  Future<bool> dispose() async {
+    final result = await _channel?.invokeMethod<bool>("dispose") ?? false;
+    if (result) {
+      _channel = null;
+    }
+    return result;
+  }
 
   @override
   void addNode(SceneViewNode node) {
     _channel?.invokeMethod('addNode', node.toMap());
   }
 
-  MethodChannel ensureChannelInitialized(int sceneId) {
+  MethodChannel _ensureChannelInitialized(int sceneId) {
     MethodChannel? channel = _channel;
     if (channel == null) {
       channel = MethodChannel('scene_view_$sceneId');
