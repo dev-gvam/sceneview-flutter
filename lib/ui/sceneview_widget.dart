@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:sceneview_flutter/sceneview_controller.dart';
+import 'package:sceneview_flutter/ui/sceneview_controller.dart';
 
 class SceneView extends StatefulWidget {
   final void Function(SceneViewController)? onViewCreated;

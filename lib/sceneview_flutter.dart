@@ -1,5 +1,6 @@
-export 'scene_view.dart';
-export 'sceneview_controller.dart';
-export 'sceneview_flutter_events.dart';
+export 'models/custom_models.dart';
+export 'models/events.dart';
+export 'ui/sceneview_controller.dart';
+export 'ui/sceneview_widget.dart';
 
 class SceneviewFlutter {}

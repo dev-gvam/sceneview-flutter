@@ -1,27 +1,26 @@
 import 'dart:async';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:sceneview_flutter/sceneview_flutter_events.dart';
+import 'package:sceneview_flutter/models/events.dart';
 
-import 'sceneview_flutter_method_channel.dart';
+import 'channels.dart';
 
-abstract class SceneviewFlutterPlatform extends PlatformInterface {
-  /// Constructs a SceneviewFlutterPlatform.
-  SceneviewFlutterPlatform() : super(token: _token);
+abstract class SceneviewPlatformInterface extends PlatformInterface {
+  SceneviewPlatformInterface() : super(token: _token);
 
   static final Object _token = Object();
 
-  static SceneviewFlutterPlatform _instance = MethodChannelSceneViewFlutter();
+  static SceneviewPlatformInterface _instance = SceneViewChannels();
 
-  /// The default instance of [SceneviewFlutterPlatform] to use.
+  /// The default instance of [SceneviewPlatformInterface] to use.
   ///
-  /// Defaults to [MethodChannelSceneViewFlutter].
-  static SceneviewFlutterPlatform get instance => _instance;
+  /// Defaults to [SceneViewChannels].
+  static SceneviewPlatformInterface get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [SceneviewFlutterPlatform] when
+  /// platform-specific class that extends [SceneviewPlatformInterface] when
   /// they register themselves.
-  static set instance(SceneviewFlutterPlatform instance) {
+  static set instance(SceneviewPlatformInterface instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }

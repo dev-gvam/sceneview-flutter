@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:sceneview_flutter/sceneview_flutter.dart';
-import 'package:sceneview_flutter/sceneview_node.dart';
 
 class SceneViewScreen extends StatefulWidget {
   const SceneViewScreen({super.key});

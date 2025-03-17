@@ -2,18 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:sceneview_flutter/sceneview_flutter_events.dart';
+import 'package:sceneview_flutter/models/events.dart';
 
-import 'sceneview_flutter_platform_interface.dart';
+import 'platform_interface.dart';
 
-/// An implementation of [SceneviewFlutterPlatform] that uses method channels.
-class MethodChannelSceneViewFlutter extends SceneviewFlutterPlatform {
+/// An implementation of [SceneviewPlatformInterface] that uses method channels.
+class SceneViewChannels extends SceneviewPlatformInterface {
   static const String methodChannelIdentifier = "sceneview_methods";
   static const String eventChannelIdentifier = "sceneview_events";
 
-  /// Registers the Android implementation of SceneviewFlutterPlatform.
+  /// Registers the Android implementation of SceneviewPlatformInterface.
   static void registerWith() {
-    SceneviewFlutterPlatform.instance = MethodChannelSceneViewFlutter();
+    SceneviewPlatformInterface.instance = SceneViewChannels();
   }
 
   /// The method channel used to interact with the native platform.
