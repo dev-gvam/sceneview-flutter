@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import com.google.ar.core.Config
 import com.google.ar.core.Session
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -28,10 +29,14 @@ class SceneViewWrapper(
     id: Int,
 ) : PlatformView, MethodCallHandler {
     private val TAG = "SceneViewWrapper"
+    private val methodChannelIdentifier = "sceneview_methods";
+    private val eventChannelIdentifier = "sceneview_events";
 
     private var sceneView: ARSceneView? = null
     private val _mainScope = CoroutineScope(Dispatchers.Main)
-    private val _methodChannel = MethodChannel(messenger, "scene_view_$id")
+    private val _methodChannel = MethodChannel(messenger, "$methodChannelIdentifier-$id")
+    private val _eventChannel = EventChannel(messenger, "$eventChannelIdentifier-$id")
+    private var eventSink: EventChannel.EventSink? = null
 
     private val container: FrameLayout = FrameLayout(context)
     private var disposed: Boolean = false
@@ -47,6 +52,8 @@ class SceneViewWrapper(
             },
             onSessionResumed = { session ->
                 Log.i(TAG, "onSessionResumed")
+                val event = mapOf("type" to "onSessionResumed", "data" to true)
+                eventSink?.success(event)
             },
             onSessionFailed = { exception ->
                 Log.e(TAG, "onSessionFailed : $exception")
@@ -61,7 +68,7 @@ class SceneViewWrapper(
                 FrameLayout.LayoutParams.MATCH_PARENT
             )
         }
-        _methodChannel.setMethodCallHandler(this)
+        initializeChannels()
         disposed = false
         container.addView(sceneView)
     }
@@ -86,7 +93,7 @@ class SceneViewWrapper(
     override fun getView(): View {
         return container
     }
-    
+
     private fun configureSession(session: Session, config: Config) {
         config.focusMode = Config.FocusMode.AUTO
         config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
@@ -104,6 +111,21 @@ class SceneViewWrapper(
         config.streetscapeGeometryMode = Config.StreetscapeGeometryMode.DISABLED
 
         Log.i(TAG, "Session Configured")
+    }
+
+    private fun initializeChannels() {
+        _methodChannel.setMethodCallHandler(this)
+        _eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                eventSink = events
+                Log.i(TAG, "Events initialized")
+            }
+
+            override fun onCancel(arguments: Any?) {
+                eventSink = null
+            }
+        })
+        Log.i(TAG, "Channels initialized")
     }
 
     private suspend fun addNode(flutterNode: FlutterSceneViewNode) {
@@ -137,7 +159,7 @@ class SceneViewWrapper(
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "init" -> {
-                result.success(null)
+                result.success(true)
             }
 
             "dispose" -> {

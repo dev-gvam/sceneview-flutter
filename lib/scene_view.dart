@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:sceneview_flutter/sceneview_controller.dart';
 
 class SceneView extends StatefulWidget {
-  final Function(SceneViewController)? onViewCreated;
+  final void Function(SceneViewController)? onViewCreated;
 
   const SceneView({
     super.key,
@@ -25,7 +25,7 @@ class _SceneViewState extends State<SceneView> {
   @override
   Widget build(BuildContext context) {
     // This is used in the platform side to register the view.
-    const String viewType = 'SceneView';
+    const String viewType = "SceneView";
     // Pass parameters to the platform side.
     const Map<String, dynamic> creationParams = <String, dynamic>{};
 

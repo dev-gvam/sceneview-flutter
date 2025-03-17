@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:sceneview_flutter/sceneview_node.dart';
+import 'package:sceneview_flutter/sceneview_flutter_events.dart';
 
 import 'sceneview_flutter_method_channel.dart';
 
@@ -25,14 +27,18 @@ abstract class SceneviewFlutterPlatform extends PlatformInterface {
   }
 
   Future<void> init(int sceneId) {
-    throw UnimplementedError('init() has not been implemented.');
+    throw UnimplementedError("init() has not been implemented.");
   }
 
   Future<bool> dispose() async {
-    throw UnimplementedError('dispose() has not been implemented.');
+    throw UnimplementedError("dispose() has not been implemented.");
   }
 
-  void addNode(SceneViewNode node) {
-    throw UnimplementedError('addNode() has not been implemented.');
+  Future<T?> invokeMethod<T>(String method, [dynamic arguments]) {
+    throw UnimplementedError("invokeMethod() has not been implemented.");
+  }
+
+  Stream<T> on<T>(SceneViewEvent event) {
+    throw UnimplementedError("on() has not been implemented.");
   }
 }

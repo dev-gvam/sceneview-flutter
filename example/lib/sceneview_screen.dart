@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:sceneview_flutter/sceneview_flutter.dart';
 import 'package:sceneview_flutter/sceneview_node.dart';
@@ -11,9 +13,11 @@ class SceneViewScreen extends StatefulWidget {
 
 class _SceneViewScreenState extends State<SceneViewScreen> {
   SceneViewController? _controller;
+  StreamSubscription<bool>? _onSessionResumed;
 
   @override
   void dispose() {
+    _onSessionResumed?.cancel();
     _controller?.dispose();
     super.dispose();
   }
@@ -34,6 +38,9 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
             SceneView(
               onViewCreated: (controller) {
                 _controller = controller;
+                _onSessionResumed = _controller?.on<bool>(SceneViewEvent.onSessionResumed).listen((data) {
+                  debugPrint("Flutter: onSessionResumed $data");
+                });
               },
             ),
             Positioned(
