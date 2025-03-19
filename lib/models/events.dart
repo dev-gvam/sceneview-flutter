@@ -1,6 +1,7 @@
 /// Define here all the event types
 enum SceneViewEvent {
-  onSessionResumed,
+  sessionResumed,
+  nodeTouched,
 }
 
 class SceneViewEventData {

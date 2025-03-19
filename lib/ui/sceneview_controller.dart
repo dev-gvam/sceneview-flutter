@@ -23,6 +23,17 @@ class SceneViewController {
     SceneviewPlatformInterface.instance.invokeMethod("addNode", node.toMap());
   }
 
+  void loadPositions({required String modelFilePath, required List<GeoPosition> positions}) {
+    SceneviewPlatformInterface.instance.invokeMethod("loadPositions", {
+      "modelFilePath": modelFilePath,
+      "positions": positions.map((m) => m.toJson()).toList(),
+    });
+  }
+
+  void filterPositions({required List<String> filters}) {
+    SceneviewPlatformInterface.instance.invokeMethod("filterPositions", filters);
+  }
+
   /// All events available in native code through the eventChannel must be declared in SceneViewEvent
   Stream<T> on<T>(SceneViewEvent event) {
     return SceneviewPlatformInterface.instance.on(event);

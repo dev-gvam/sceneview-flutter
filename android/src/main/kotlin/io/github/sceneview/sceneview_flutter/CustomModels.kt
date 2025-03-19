@@ -2,6 +2,45 @@ package io.github.sceneview.sceneview_flutter
 
 import dev.romainguy.kotlin.math.Float3
 
+
+class GeoPositionLoader(
+    val modelFilePath: String,
+    val positions: List<GeoPosition>
+) {
+
+    companion object {
+        fun fromJson(map: Map<String, *>): GeoPositionLoader {
+            val modelFilePath = (map["modelFilePath"] as String)
+            val positionList = (map["positions"] as List<Map<String, *>>)
+            val positions = positionList.map { GeoPosition.fromJson(it) }
+            return GeoPositionLoader(
+                modelFilePath = modelFilePath,
+                positions = positions
+            )
+        }
+    }
+}
+
+data class GeoPosition(
+    val id: String,
+    val type: String,
+    val latitude: Double,
+    val longitude: Double,
+    val altitude: Double,
+) {
+    companion object {
+        fun fromJson(map: Map<String, *>): GeoPosition {
+            return GeoPosition(
+                id = (map["id"] as String),
+                type = (map["type"] as String),
+                latitude = (map["latitude"] as Double),
+                longitude = (map["longitude"] as Double),
+                altitude = (map["altitude"] as Double),
+            )
+        }
+    }
+}
+
 abstract class FlutterSceneViewNode(
     val position: Float3 = Float3(0f, 0f, 0f),
     val rotation: Float3 = Float3(0f, 0f, 0f),
