@@ -23,9 +23,9 @@ class SceneViewController {
     SceneviewPlatformInterface.instance.invokeMethod("addNode", node.toMap());
   }
 
-  void loadPositions({required String modelFilePath, required List<GeoPosition> positions}) {
+  void loadPositions({required List<GeoPositionModel> models, required List<GeoPosition> positions}) {
     SceneviewPlatformInterface.instance.invokeMethod("loadPositions", {
-      "modelFilePath": modelFilePath,
+      "models": models.map((m) => m.toJson()).toList(),
       "positions": positions.map((m) => m.toJson()).toList(),
     });
   }

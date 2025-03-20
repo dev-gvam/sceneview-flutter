@@ -19,8 +19,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.platform.PlatformView
 import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.node.AnchorNode
+import io.github.sceneview.ar.scene.destroy
 import io.github.sceneview.collision.Sphere
-import io.github.sceneview.math.Color
 import io.github.sceneview.math.Size
 import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
@@ -87,18 +87,34 @@ class SceneViewWrapper(
     override fun dispose() {
         if (disposed) return
 
-        sceneView?.session?.close()
-        sceneView = null
-        container.removeAllViews()
-        val emptyView = View(container.context).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+        try {
+            val earthAnchors = sceneView?.session?.earth?.anchors?.toList() ?: emptyList()
+            earthAnchors.forEach { anchor ->
+                try {
+                    anchor.detach()
+                    anchor.destroy()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error detaching anchor: ${e.message}")
+                }
+            }
+            sceneView?.clearChildNodes()
+            sceneView?.session?.close()
+            sceneView?.destroy()
+            container.removeAllViews()
+            val emptyView = View(container.context).apply {
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+            }
+            container.addView(emptyView)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during dispose ${e.message}")
+        } finally {
+            sceneView = null
+            disposed = true
+            Log.i(TAG, "dispose")
         }
-        container.addView(emptyView)
-        disposed = true
-        Log.i(TAG, "dispose")
     }
 
     override fun getView(): View {
@@ -161,6 +177,13 @@ class SceneViewWrapper(
                     position = flutterNode.position,
                     rotation = flutterNode.rotation,
                 )
+                isTouchable = true
+                isEditable = true
+                isSmoothTransformEnabled = true
+                isShadowCaster = false
+                isShadowReceiver = false
+                isPositionEditable = true
+                isRotationEditable = true
             }
             return modelNode
         }
@@ -216,11 +239,14 @@ class SceneViewWrapper(
                         maxScale = 3.0f
                     )*/
                     val modelNode =
-                        createModelNodeFromFlutterAsset(position.id, loader.modelFilePath, scale)
+                        createModelNodeFromFlutterAsset(
+                            position.id,
+                            loader.getModelPathByType(position.type),
+                            scale
+                        )
                     // val modelNode = createImageNodeFromFlutterAsset(position.id, loader.modelFilePath, scale)
                     if (modelNode != null) {
                         Utils.rotateModelX(modelNode)
-                        Utils.changeModelColor(modelNode, Color(1.0f, 1.0f, 0f))
                         earthAnchorNode.addChildNode(modelNode).apply {
                             name = position.type
                         }
@@ -250,12 +276,13 @@ class SceneViewWrapper(
         assetFilePath: String,
         scale: Float = 1.0f
     ): ModelNode? {
+        if (assetFilePath.isEmpty()) return null
         val flutterAsset = Utils.getFlutterAssetKey(activity, assetFilePath)
         val model: ModelInstance? = sceneView?.modelLoader?.loadModelInstance(flutterAsset)
 
         return model?.let {
             ModelNode(modelInstance = model, scaleToUnits = scale).apply {
-                collisionShape = Sphere(scale / 8f)
+                collisionShape = Sphere(scale + (scale / 12f))
                 isTouchable = true
                 onSingleTapConfirmed = { _ ->
                     val event = mapOf("type" to "nodeTouched", "data" to id)

@@ -4,17 +4,21 @@ import dev.romainguy.kotlin.math.Float3
 
 
 class GeoPositionLoader(
-    val modelFilePath: String,
+    val models: List<GeoPositionModel>,
     val positions: List<GeoPosition>
 ) {
+    fun getModelPathByType(type: String): String {
+        return models.find { it.type == type }?.modelPath ?: ""
+    }
 
     companion object {
         fun fromJson(map: Map<String, *>): GeoPositionLoader {
-            val modelFilePath = (map["modelFilePath"] as String)
+            val modelList = (map["models"] as List<Map<String, *>>)
+            val models = modelList.map { GeoPositionModel.fromJson(it) }
             val positionList = (map["positions"] as List<Map<String, *>>)
             val positions = positionList.map { GeoPosition.fromJson(it) }
             return GeoPositionLoader(
-                modelFilePath = modelFilePath,
+                models = models,
                 positions = positions
             )
         }
@@ -36,6 +40,20 @@ data class GeoPosition(
                 latitude = (map["latitude"] as Double),
                 longitude = (map["longitude"] as Double),
                 altitude = (map["altitude"] as Double),
+            )
+        }
+    }
+}
+
+data class GeoPositionModel(
+    val type: String,
+    val modelPath: String,
+) {
+    companion object {
+        fun fromJson(map: Map<String, *>): GeoPositionModel {
+            return GeoPositionModel(
+                type = (map["type"] as String),
+                modelPath = (map["modelPath"] as String)
             )
         }
     }

@@ -22,6 +22,15 @@ class GeoPosition {
       };
 }
 
+class GeoPositionModel {
+  final String type;
+  final String modelPath;
+
+  GeoPositionModel(this.type, this.modelPath);
+
+  Map<String, String> toJson() => {"type": type, "modelPath": modelPath};
+}
+
 class SceneViewNode {
   final String fileLocation;
   final KotlinFloat3? position;

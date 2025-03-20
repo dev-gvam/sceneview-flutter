@@ -6,8 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import io.flutter.embedding.engine.loader.FlutterLoader
-import io.github.sceneview.material.setBaseColorFactor
-import io.github.sceneview.math.Color
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.ModelNode
 import java.io.IOException
