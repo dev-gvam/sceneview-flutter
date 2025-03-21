@@ -5,10 +5,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:sceneview_flutter/sceneview_controller.dart';
+import 'package:sceneview_flutter/ui/sceneview_controller.dart';
 
 class SceneView extends StatefulWidget {
+<<<<<<< HEAD:lib/scene_view.dart
   final void Function(SceneViewController) onSessionCreated;
+=======
+  final void Function(SceneViewController)? onViewCreated;
+>>>>>>> new-locations:lib/ui/sceneview_widget.dart
 
   const SceneView({
     super.key,
@@ -21,6 +25,7 @@ class SceneView extends StatefulWidget {
 
 class _SceneViewState extends State<SceneView> {
   final Completer<SceneViewController> _controller = Completer<SceneViewController>();
+<<<<<<< HEAD:lib/scene_view.dart
 
   @override
   void initState() {
@@ -32,11 +37,13 @@ class _SceneViewState extends State<SceneView> {
     _disposeController();
     super.dispose();
   }
+=======
+>>>>>>> new-locations:lib/ui/sceneview_widget.dart
 
   @override
   Widget build(BuildContext context) {
     // This is used in the platform side to register the view.
-    const String viewType = 'SceneView';
+    const String viewType = "SceneView";
     // Pass parameters to the platform side.
     const Map<String, dynamic> creationParams = <String, dynamic>{};
 
@@ -61,7 +68,11 @@ class _SceneViewState extends State<SceneView> {
           },
         )
           ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+<<<<<<< HEAD:lib/scene_view.dart
           ..addOnPlatformViewCreatedListener((id) => _onPlatformViewCreated(id));
+=======
+          ..addOnPlatformViewCreatedListener((id) => onPlatformViewCreated(id));
+>>>>>>> new-locations:lib/ui/sceneview_widget.dart
       },
     );
   }

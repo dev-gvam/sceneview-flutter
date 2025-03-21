@@ -12,13 +12,14 @@ import java.io.IOException
 
 
 class Utils {
-    companion object{
+    companion object {
         fun getFlutterAssetKey(context: Context, flutterAsset: String): String {
             Log.d("Utils", flutterAsset)
             val loader = FlutterLoader()
             loader.startInitialization(context)
             return loader.getLookupKeyForAsset(flutterAsset)
         }
+
         fun getBitmapFromFlutterAsset(context: Context, flutterAsset: String): Bitmap? {
             return try {
                 val assetKey = getFlutterAssetKey(context, flutterAsset)
@@ -28,20 +29,22 @@ class Utils {
                 inputStream.close()
                 bitmap
             } catch (e: IOException) {
-                Log.e("Utils", "Error al cargar el asset: $flutterAsset", e)
+                Log.e("Utils", "Error loading asset: $flutterAsset", e)
                 null
             }
         }
+
         fun calculateScale(
             distance: Double,
             minDist: Double = 1.0,
             maxDist: Double = 8000.0,
-            minScale: Float = 10f,
-            maxScale: Float = 300f
+            minScale: Float = 5f,
+            maxScale: Float = 240f,
         ): Float {
             val factor = ((distance - minDist) / (maxDist - minDist)).coerceIn(0.0, 1.0)
             return (minScale + factor * (maxScale - minScale)).toFloat()
         }
+
         fun rotateModelX(modelNode: ModelNode) {
             ValueAnimator.ofFloat(0f, 360f).apply {
                 duration = 4000

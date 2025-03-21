@@ -2,6 +2,63 @@ package io.github.sceneview.sceneview_flutter
 
 import dev.romainguy.kotlin.math.Float3
 
+
+class GeoPositionLoader(
+    val models: List<GeoPositionModel>,
+    val positions: List<GeoPosition>
+) {
+    fun getModelPathByType(type: String): String {
+        return models.find { it.type == type }?.modelPath ?: ""
+    }
+
+    companion object {
+        fun fromJson(map: Map<String, *>): GeoPositionLoader {
+            val modelList = (map["models"] as List<Map<String, *>>)
+            val models = modelList.map { GeoPositionModel.fromJson(it) }
+            val positionList = (map["positions"] as List<Map<String, *>>)
+            val positions = positionList.map { GeoPosition.fromJson(it) }
+            return GeoPositionLoader(
+                models = models,
+                positions = positions
+            )
+        }
+    }
+}
+
+data class GeoPosition(
+    val id: String,
+    val type: String,
+    val latitude: Double,
+    val longitude: Double,
+    val altitude: Double,
+) {
+    companion object {
+        fun fromJson(map: Map<String, *>): GeoPosition {
+            return GeoPosition(
+                id = (map["id"] as String),
+                type = (map["type"] as String),
+                latitude = (map["latitude"] as Double),
+                longitude = (map["longitude"] as Double),
+                altitude = (map["altitude"] as Double),
+            )
+        }
+    }
+}
+
+data class GeoPositionModel(
+    val type: String,
+    val modelPath: String,
+) {
+    companion object {
+        fun fromJson(map: Map<String, *>): GeoPositionModel {
+            return GeoPositionModel(
+                type = (map["type"] as String),
+                modelPath = (map["modelPath"] as String)
+            )
+        }
+    }
+}
+
 abstract class FlutterSceneViewNode(
     val position: Float3 = Float3(0f, 0f, 0f),
     val rotation: Float3 = Float3(0f, 0f, 0f),
