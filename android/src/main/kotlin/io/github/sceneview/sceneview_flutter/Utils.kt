@@ -38,8 +38,8 @@ class Utils {
             distance: Double,
             minDist: Double = 1.0,
             maxDist: Double = 8000.0,
-            minScale: Float = 10f,
-            maxScale: Float = 300f
+            minScale: Float = 5f,
+            maxScale: Float = 240f,
         ): Float {
             val factor = ((distance - minDist) / (maxDist - minDist)).coerceIn(0.0, 1.0)
             return (minScale + factor * (maxScale - minScale)).toFloat()

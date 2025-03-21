@@ -125,7 +125,7 @@ class SceneViewWrapper(
         config.focusMode = Config.FocusMode.AUTO
         config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
         config.planeFindingMode = Config.PlaneFindingMode.DISABLED
-        config.lightEstimationMode = Config.LightEstimationMode.DISABLED
+        config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
         config.textureUpdateMode = Config.TextureUpdateMode.BIND_TO_TEXTURE_EXTERNAL_OES
 
         config.depthMode = Config.DepthMode.DISABLED
@@ -282,8 +282,6 @@ class SceneViewWrapper(
 
         return model?.let {
             ModelNode(modelInstance = model, scaleToUnits = scale).apply {
-                collisionShape = Sphere(scale + (scale / 12f))
-                isTouchable = true
                 onSingleTapConfirmed = { _ ->
                     val event = mapOf("type" to "nodeTouched", "data" to id)
                     eventSink?.success(event)
@@ -329,7 +327,13 @@ class SceneViewWrapper(
 
     private fun filterPositions(filters: List<String>) {
         sceneView?.childNodes?.forEach { node ->
-            node.isVisible = filters.isEmpty() || filters.contains(node.name)
+            if (filters.isEmpty() || filters.contains(node.name)) {
+                node.isVisible = true
+                node.isTouchable = true
+            } else {
+                node.isVisible = false
+                node.isTouchable = false
+            }
         }
     }
 
