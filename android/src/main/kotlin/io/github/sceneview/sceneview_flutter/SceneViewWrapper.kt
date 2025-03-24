@@ -21,10 +21,12 @@ import io.github.sceneview.ar.ARSceneView
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.scene.destroy
 import io.github.sceneview.collision.Sphere
+import io.github.sceneview.math.Position
 import io.github.sceneview.math.Size
 import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
+import io.github.sceneview.node.SphereNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -206,6 +208,7 @@ class SceneViewWrapper(
             Log.i(TAG, "Esperando TRACKING...")
             delay(100)
         }
+
         val pose = earth!!.cameraGeospatialPose
 
         Log.i(
@@ -238,23 +241,41 @@ class SceneViewWrapper(
                         minScale = 0.1f,
                         maxScale = 3.0f
                     )*/
-                    val modelNode =
-                        createModelNodeFromFlutterAsset(
-                            position.id,
-                            loader.getModelPathByType(position.type),
-                            scale
-                        )
+                    val modelNode = createModelNodeFromFlutterAsset(
+                        position.id,
+                        loader.getModelPathByType(position.type),
+                        scale
+                    )
                     // val modelNode = createImageNodeFromFlutterAsset(position.id, loader.modelFilePath, scale)
                     if (modelNode != null) {
                         Utils.rotateModelX(modelNode)
                         earthAnchorNode.addChildNode(modelNode).apply {
                             name = position.type
                         }
+                        val sphere = SphereNode(
+                            engine = sceneView!!.engine,
+                            radius = (scale * 0.6f),
+                            center = Position(0f, 8f, 0f)
+                        ).apply {
+                            isTouchable = true
+                            isVisible = false
+                            onSingleTapConfirmed = { _ ->
+                                Log.i(TAG, "SPHERE : ${position.id} scale $scale")
+                                val event = mapOf("type" to "nodeTouched", "data" to position.id)
+                                eventSink?.success(event)
+                                true
+                            }
+                        }
+                        if (scale > 10f) {
+                            earthAnchorNode.addChildNode(sphere)
+                        }
                         sceneView?.addChildNode(earthAnchorNode)
                     }
                 }
             }
         }
+        val event = mapOf("type" to "loadedNodes", "data" to true)
+        eventSink?.success(event)
         Log.i(TAG, "NODES END -> ${sceneView?.childNodes?.size}")
     }
 
@@ -279,10 +300,10 @@ class SceneViewWrapper(
         if (assetFilePath.isEmpty()) return null
         val flutterAsset = Utils.getFlutterAssetKey(activity, assetFilePath)
         val model: ModelInstance? = sceneView?.modelLoader?.loadModelInstance(flutterAsset)
-
         return model?.let {
             ModelNode(modelInstance = model, scaleToUnits = scale).apply {
                 onSingleTapConfirmed = { _ ->
+                    Log.i(TAG, "MODEL: $id scale $scale")
                     val event = mapOf("type" to "nodeTouched", "data" to id)
                     eventSink?.success(event)
                     true
