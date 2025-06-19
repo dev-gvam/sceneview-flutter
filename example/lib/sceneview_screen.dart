@@ -35,7 +35,7 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
         body: Stack(
           children: [
             SceneView(
-              onViewCreated: (controller) {
+              onSessionCreated: (controller) {
                 _controller = controller;
                 _onSessionResumed = _controller?.on<bool>(SceneViewEvent.sessionResumed).listen((data) {
                   debugPrint("Flutter: onSessionResumed $data");
