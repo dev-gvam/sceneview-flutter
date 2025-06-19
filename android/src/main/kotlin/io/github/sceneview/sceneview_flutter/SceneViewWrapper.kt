@@ -258,6 +258,8 @@ class SceneViewWrapper(
                 }
             }
         }
+        val event = mapOf("type" to "loadedNodes", "data" to true)
+        eventSink?.success(event)
         Log.i(TAG, "NODES END -> ${sceneView?.childNodes?.size}")
     }
 

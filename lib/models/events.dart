@@ -2,6 +2,7 @@
 enum SceneViewEvent {
   sessionResumed,
   nodeTouched,
+  loadedNodes,
 }
 
 class SceneViewEventData {
