@@ -1,5 +1,6 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:sceneview_flutter/sceneview_node.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 import 'sceneview_flutter_method_channel.dart';
 
@@ -30,6 +31,24 @@ abstract class SceneviewFlutterPlatform extends PlatformInterface {
 
   void addNode(SceneViewNode node) {
     throw UnimplementedError('addNode() has not been implemented.');
+  }
+
+  hitTest(double x, double y, double screenWidth, double screenHeight) {
+    throw UnimplementedError('addNode() has not been implemented.');
+  }
+
+  Stream<bool> planeDetected() {
+    throw UnimplementedError('addNode() has not been implemented.');
+  }
+
+  Future<void> update(
+    List<String> nodeNames, {
+    SceneViewNode? node,
+    Vector3? translation,
+    Vector3? startPoint,
+    Vector3? endPoint,
+  }) {
+    throw UnimplementedError('update() has not been implemented.');
   }
 
   void dispose(int sceneId) {

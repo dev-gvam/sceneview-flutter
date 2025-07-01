@@ -1,8 +1,12 @@
 package io.github.sceneview.sceneview_flutter
 
+import android.util.Log
 import dev.romainguy.kotlin.math.Float3
+import java.util.UUID
 
 abstract class FlutterSceneViewNode(
+    val name: String?,
+    val parentNodeName: String?,
     val position: Float3 = Float3(0f, 0f, 0f),
     val rotation: Float3 = Float3(0f, 0f, 0f),
     val scale: Float3 = Float3(0f, 0f, 0f),
@@ -11,6 +15,13 @@ abstract class FlutterSceneViewNode(
 
     companion object {
         fun from(map: Map<String, *>): FlutterSceneViewNode {
+
+            val nodeName: String = (map["name"] as? String)?.takeIf { it.isNotBlank() }
+                ?: "node-${UUID.randomUUID()}"
+
+            Log.d("NodeName", "Final node name: $nodeName")
+            val parentNodeName=map["parentNodeName"] as String?
+
             val fileLocation = map["fileLocation"] as String?
             if (fileLocation != null) {
                 val p = FlutterPosition.from(map["position"] as Map<String, Float>?)
@@ -18,7 +29,10 @@ abstract class FlutterSceneViewNode(
                 val s = FlutterScale.from(map["scale"] as Map<String, Float>?)
                 val scaleUnits = map["scaleUnits"] as Float?
                 return FlutterReferenceNode(
+
                     fileLocation,
+                    nodeName ,
+                    parentNodeName,
                     p.position,
                     r.rotation,
                     s.scale,
@@ -33,12 +47,14 @@ abstract class FlutterSceneViewNode(
 
 class FlutterReferenceNode(
     val fileLocation: String,
+     name:String?,
+     parnetNodeName: String?,
     position: Float3,
     rotation: Float3,
     scale: Float3,
     scaleUnits: Float
 ) :
-    FlutterSceneViewNode(position, rotation, scale, scaleUnits)
+    FlutterSceneViewNode(name,parnetNodeName,position, rotation, scale, scaleUnits)
 
 class FlutterPosition(val position: Float3) {
     companion object {

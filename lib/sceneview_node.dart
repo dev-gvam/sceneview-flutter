@@ -1,11 +1,18 @@
+import 'package:sceneview_flutter/extension/vector_extension.dart';
+import 'package:vector_math/vector_math_64.dart';
+
 class SceneViewNode {
   final String fileLocation;
-  final KotlinFloat3? position;
-  final KotlinFloat3? rotation;
+  final String? name;
+  final String? parentName;
+  final Vector3? position;
+  final Vector3? rotation;
   final double? scale;
 
   SceneViewNode({
     required this.fileLocation,
+    this.name,
+    this.parentName,
     this.position,
     this.rotation,
     this.scale,
@@ -13,6 +20,8 @@ class SceneViewNode {
 
   Map<String, dynamic> toMap() {
     final map = {
+      'name': name,
+      'parentNodeName': parentName,
       'fileLocation': fileLocation,
       'position': position?.toMap(),
       'rotation': rotation?.toMap(),
@@ -20,21 +29,5 @@ class SceneViewNode {
     };
     map.removeWhere((key, value) => value == null);
     return map;
-  }
-}
-
-class KotlinFloat3 {
-  final double x;
-  final double y;
-  final double z;
-
-  KotlinFloat3({this.x = 0.0, this.y = 0.0, this.z = 0.0});
-
-  toMap() {
-    return <String, double>{
-      'x': x,
-      'y': y,
-      'z': z,
-    };
   }
 }
