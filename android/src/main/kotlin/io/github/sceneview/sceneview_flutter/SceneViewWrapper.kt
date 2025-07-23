@@ -4,9 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.util.Log
-import android.view.SurfaceHolder
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
 import com.google.ar.core.Config
