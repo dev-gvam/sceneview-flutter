@@ -12,11 +12,13 @@ class SceneViewScreen extends StatefulWidget {
 
 class _SceneViewScreenState extends State<SceneViewScreen> {
   SceneViewController? _controller;
-  StreamSubscription<bool>? _onSessionResumed;
+  StreamSubscription<String>? _streamNodeTouched;
+  StreamSubscription<bool>? _streamLoadedNodes;
 
   @override
   void dispose() {
-    _onSessionResumed?.cancel();
+    _streamNodeTouched?.cancel();
+    _streamLoadedNodes?.cancel();
     _controller?.dispose();
     super.dispose();
   }
@@ -25,8 +27,8 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        _controller?.dispose().then(_closeView);
+      onPopInvokedWithResult: (didPop, result) async {
+        await _controller?.dispose().then(_closeView);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -37,22 +39,34 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
             SceneView(
               onSessionCreated: (controller) {
                 _controller = controller;
-                _onSessionResumed = _controller?.on<bool>(SceneViewEvent.sessionResumed).listen((data) {
-                  debugPrint("Flutter: onSessionResumed $data");
-                });
+                _streamNodeTouched = _controller!.on<String>(SceneViewEvent.nodeTouched).listen((data) {});
+                _streamLoadedNodes = _controller!.on<bool>(SceneViewEvent.loadedNodes).listen((data) {});
+                _controller?.loadPositions(
+                  models: [
+                    GeoPositionModel("maritime", "assets/models/pin_maritimo.glb"), // Pin de color azul
+                    GeoPositionModel("monument", "assets/models/pin_monumento.glb"), // Gris
+                    GeoPositionModel("natural", "assets/models/pin_natural.glb"), // Verde
+                    GeoPositionModel("religious", "assets/models/pin_religioso.glb"), // Rojo
+                  ],
+                  positions: [
+                    GeoPosition(
+                      id: "ONE",
+                      latitude: 40.444359262605715,
+                      longitude: -3.7040321096622875,
+                      altitude: 700,
+                      type: "religious",
+                    ),
+                    GeoPosition(
+                      id: "TWO",
+                      latitude: 40.44399298846002,
+                      longitude: -3.70347567338853,
+                      altitude: 720,
+                      type: "maritime",
+                    ),
+                  ],
+                );
               },
             ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: _placeModel,
-                  child: Text("Place model"),
-                ),
-              ),
-            )
           ],
         ),
       ),
@@ -65,13 +79,5 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
         Navigator.pop(context);
       }
     }
-  }
-
-  void _placeModel() {
-    _controller?.addNode(SceneViewNode(
-      fileLocation: 'assets/models/MaterialSuite.glb',
-      position: KotlinFloat3(z: -1.0),
-      rotation: KotlinFloat3(x: 15),
-    ));
   }
 }
