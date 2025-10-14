@@ -41,30 +41,6 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
                 _controller = controller;
                 _streamNodeTouched = _controller!.on<String>(SceneViewEvent.nodeTouched).listen((data) {});
                 _streamLoadedNodes = _controller!.on<bool>(SceneViewEvent.loadedNodes).listen((data) {});
-                _controller?.loadPositions(
-                  models: [
-                    GeoPositionModel("maritime", "assets/models/pin_maritimo.glb"), // Pin de color azul
-                    GeoPositionModel("monument", "assets/models/pin_monumento.glb"), // Gris
-                    GeoPositionModel("natural", "assets/models/pin_natural.glb"), // Verde
-                    GeoPositionModel("religious", "assets/models/pin_religioso.glb"), // Rojo
-                  ],
-                  positions: [
-                    GeoPosition(
-                      id: "ONE",
-                      latitude: 40.444359262605715,
-                      longitude: -3.7040321096622875,
-                      altitude: 700,
-                      type: "religious",
-                    ),
-                    GeoPosition(
-                      id: "TWO",
-                      latitude: 40.44399298846002,
-                      longitude: -3.70347567338853,
-                      altitude: 720,
-                      type: "maritime",
-                    ),
-                  ],
-                );
               },
             ),
           ],

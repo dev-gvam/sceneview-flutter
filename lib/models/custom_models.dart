@@ -1,44 +1,11 @@
-class GeoPosition {
-  final String id;
-  final double latitude;
-  final double longitude;
-  final double altitude;
-  String type;
-
-  GeoPosition({
-    required this.id,
-    required this.latitude,
-    required this.longitude,
-    required this.altitude,
-    this.type = "",
-  });
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "type": type,
-        "latitude": latitude,
-        "longitude": longitude,
-        "altitude": altitude,
-      };
-}
-
-class GeoPositionModel {
-  final String type;
-  final String modelPath;
-
-  GeoPositionModel(this.type, this.modelPath);
-
-  Map<String, String> toJson() => {"type": type, "modelPath": modelPath};
-}
-
-class SceneViewNode {
-  final String fileLocation;
+class ModelNode {
+  final String path;
   final KotlinFloat3? position;
   final KotlinFloat3? rotation;
   final double? scale;
 
-  SceneViewNode({
-    required this.fileLocation,
+  ModelNode({
+    required this.path,
     this.position,
     this.rotation,
     this.scale,
@@ -46,7 +13,7 @@ class SceneViewNode {
 
   Map<String, dynamic> toMap() {
     final map = {
-      'fileLocation': fileLocation,
+      'path': path,
       'position': position?.toMap(),
       'rotation': rotation?.toMap(),
       'scale': scale,
