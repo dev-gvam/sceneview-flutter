@@ -51,7 +51,7 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
               bottom: MediaQuery.of(context).padding.bottom + 32,
               left: 32,
               right: 32,
-              child: ElevatedButton(onPressed: () => _test(), child: Text("Show Jabali")),
+              child: ElevatedButton(onPressed: _showModel, child: Text("Show Model")),
             ),
           ],
         ),
@@ -59,7 +59,7 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
     );
   }
 
-  void _test() {
+  void _showModel() {
     _controller?.addModel(
       ModelNode(
         id: "pin_natural",

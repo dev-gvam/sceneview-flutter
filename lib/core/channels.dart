@@ -43,7 +43,6 @@ class SceneViewChannels extends SceneviewPlatformInterface {
       _eventChannel = null;
       await _eventChannelSubscription?.cancel();
       _eventChannelSubscription = null;
-      _eventController.close();
     }
     return result;
   }
