@@ -39,8 +39,12 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
             SceneView(
               onSessionCreated: (controller) {
                 _controller = controller;
-                _streamNodeTouched = _controller!.on<String>(SceneViewEvent.nodeTouched).listen((data) {});
-                _streamLoadedNodes = _controller!.on<bool>(SceneViewEvent.loadedNodes).listen((data) {});
+                _streamNodeTouched = _controller!.on<String>(SceneViewEvent.nodeTouched).listen((data) {
+                  debugPrint("--> touched $data");
+                });
+                _streamLoadedNodes = _controller!.on<bool>(SceneViewEvent.nodeLoaded).listen((data) {
+                  debugPrint("--> loaded $data");
+                });
               },
             ),
             Positioned(
@@ -56,7 +60,13 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
   }
 
   void _test() {
-    _controller?.addModel(ModelNode(path: "assets/models/pin_natural.glb", rotation: KotlinFloat3(y: -90)));
+    _controller?.addModel(
+      ModelNode(
+        id: "pin_natural",
+        path: "assets/models/pin_natural.glb",
+        rotation: KotlinFloat3(y: -90),
+      ),
+    );
   }
 
   void _closeView(bool dispose) {

@@ -1,10 +1,12 @@
 class ModelNode {
+  final String id;
   final String path;
   final KotlinFloat3? position;
   final KotlinFloat3? rotation;
   final double? scale;
 
   ModelNode({
+    required this.id,
     required this.path,
     this.position,
     this.rotation,

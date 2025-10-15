@@ -11,6 +11,7 @@ abstract class FlutterSceneViewNode(
 
     companion object {
         fun from(map: Map<String, *>): FlutterSceneViewNode {
+            val id = map["id"] as? String ?: ""
             val path = map["path"] as String?
             if (path != null) {
                 val p = FlutterPosition.from(map["position"] as Map<String, Float>?)
@@ -18,6 +19,7 @@ abstract class FlutterSceneViewNode(
                 val s = FlutterScale.from(map["scale"] as Map<String, Float>?)
                 val scaleUnits = map["scaleUnits"] as Float?
                 return FlutterReferenceNode(
+                    id,
                     path,
                     p.position,
                     r.rotation,
@@ -31,6 +33,7 @@ abstract class FlutterSceneViewNode(
 }
 
 class FlutterReferenceNode(
+    val id: String,
     val path: String,
     position: Float3,
     rotation: Float3,

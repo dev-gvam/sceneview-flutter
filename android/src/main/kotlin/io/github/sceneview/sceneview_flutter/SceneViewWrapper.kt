@@ -148,9 +148,11 @@ class SceneViewWrapper(
 
     private suspend fun buildNode(flutterNode: FlutterSceneViewNode): ModelNode? {
         var model: ModelInstance? = null
+        var id = ""
         when (flutterNode) {
             is FlutterReferenceNode -> {
                 val filePath = Utils.getFlutterAssetKey(activity, flutterNode.path)
+                id = flutterNode.id
                 Log.d(TAG, filePath)
                 model = sceneView?.modelLoader?.loadModelInstance(filePath)
             }
@@ -164,10 +166,16 @@ class SceneViewWrapper(
                 isTouchable = true
                 isEditable = true
                 isSmoothTransformEnabled = true
-                isShadowCaster = true
-                isShadowReceiver = true
+                isShadowCaster = false
+                isShadowReceiver = false
                 isPositionEditable = true
                 isRotationEditable = true
+                isScaleEditable = false
+                onSingleTapConfirmed = { _ ->
+                    val event = mapOf("type" to "nodeTouched", "data" to id)
+                    eventSink?.success(event)
+                    true
+                }
             }
             return modelNode
         }
@@ -210,6 +218,7 @@ class SceneViewWrapper(
         val modelNode = buildNode(flutterNode) ?: return false
 
         anchorNode.addChildNode(modelNode)
+        sv.planeRenderer.isVisible = false
         return true
     }
 
@@ -256,7 +265,9 @@ class SceneViewWrapper(
                 Log.i(TAG, "addModel")
                 val flutterNode = FlutterSceneViewNode.from(call.arguments as Map<String, *>)
                 _mainScope.launch {
-                    renderModelAtGround(flutterNode)
+                    val loaded = renderModelAtGround(flutterNode)
+                    val event = mapOf("type" to "nodeLoaded", "data" to loaded)
+                    eventSink?.success(event)
                     result.success(true)
                 }
             }
