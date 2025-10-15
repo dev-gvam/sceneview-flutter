@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sceneview_flutter/sceneview_flutter.dart';
 import 'package:sceneview_flutter_example/sceneview_screen.dart';
 
 void main() {
@@ -31,11 +32,23 @@ class HomeScreen extends StatelessWidget {
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        child: Center(
-          child: ElevatedButton(
-            onPressed: () => _openSceneViewScreen(context),
-            child: Text("Open SceneView Screen"),
-          ),
+        child: Column(
+          spacing: 20,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () => _openSceneViewScreen(context),
+              child: Text("Open SceneView Screen"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                var available = await SceneviewFlutter.isAvailable();
+                debugPrint("--> isAvailable $available");
+              },
+              child: Text("Is available"),
+            ),
+          ],
         ),
       ),
     );

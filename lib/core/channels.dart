@@ -16,11 +16,6 @@ class SceneViewChannels extends SceneviewPlatformInterface {
     SceneviewPlatformInterface.instance = SceneViewChannels();
   }
 
-  /// The method channel used to interact with the native platform.
-  @visibleForTesting
-  final methodChannel = const MethodChannel(methodChannelIdentifier);
-  final eventChannel = const EventChannel(eventChannelIdentifier);
-
   MethodChannel? _methodChannel;
   EventChannel? _eventChannel;
   StreamSubscription<dynamic>? _eventChannelSubscription;
