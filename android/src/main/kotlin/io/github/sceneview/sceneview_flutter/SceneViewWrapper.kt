@@ -6,8 +6,11 @@ import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import androidx.lifecycle.Lifecycle
+import com.google.ar.core.Anchor
 import com.google.ar.core.Config
+import com.google.ar.core.Plane
 import com.google.ar.core.Session
+import com.google.ar.core.TrackingState
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -15,6 +18,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.platform.PlatformView
 import io.github.sceneview.ar.ARSceneView
+import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ModelNode
 import kotlinx.coroutines.CoroutineScope
@@ -105,7 +109,7 @@ class SceneViewWrapper(
     private fun configureSession(session: Session, config: Config) {
         config.focusMode = Config.FocusMode.AUTO
         config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
-        config.planeFindingMode = Config.PlaneFindingMode.DISABLED
+        config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
         config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
         config.textureUpdateMode = Config.TextureUpdateMode.BIND_TO_TEXTURE_EXTERNAL_OES
 
@@ -145,11 +149,10 @@ class SceneViewWrapper(
     private suspend fun buildNode(flutterNode: FlutterSceneViewNode): ModelNode? {
         var model: ModelInstance? = null
         when (flutterNode) {
-            is io.github.sceneview.sceneview_flutter.ModelNode -> {
-                val fileLocation = Utils.getFlutterAssetKey(activity, flutterNode.path)
-                Log.d(TAG, fileLocation)
-                model =
-                    sceneView?.modelLoader?.loadModelInstance(fileLocation)
+            is FlutterReferenceNode -> {
+                val filePath = Utils.getFlutterAssetKey(activity, flutterNode.path)
+                Log.d(TAG, filePath)
+                model = sceneView?.modelLoader?.loadModelInstance(filePath)
             }
         }
         if (model != null) {
@@ -161,14 +164,20 @@ class SceneViewWrapper(
                 isTouchable = true
                 isEditable = true
                 isSmoothTransformEnabled = true
-                isShadowCaster = false
-                isShadowReceiver = false
+                isShadowCaster = true
+                isShadowReceiver = true
                 isPositionEditable = true
                 isRotationEditable = true
             }
             return modelNode
         }
         return null
+    }
+
+    private fun getScreenCenterPx(view: View): Pair<Float, Float> {
+        val w = view.width.coerceAtLeast(1)
+        val h = view.height.coerceAtLeast(1)
+        return w / 2f to h / 2f
     }
 
     private suspend fun createModelNodeFromFlutterAsset(
@@ -191,6 +200,44 @@ class SceneViewWrapper(
         }
     }
 
+    private suspend fun renderModelAtGround(flutterNode: FlutterSceneViewNode): Boolean {
+        val anchor = tryCreateGroundAnchorAtScreenCenter() ?: return false
+        val sv = sceneView ?: return false
+
+        val anchorNode = AnchorNode(sceneView!!.engine, anchor)
+        sv.addChildNode(anchorNode)
+
+        val modelNode = buildNode(flutterNode) ?: return false
+
+        anchorNode.addChildNode(modelNode)
+        return true
+    }
+
+    private fun tryCreateGroundAnchorAtScreenCenter(): Anchor? {
+        val sv = sceneView ?: return null
+        val frame = sceneView?.session?.frame ?: return null
+        val (cx, cy) = getScreenCenterPx(sv)
+
+        val hits = frame.hitTest(cx, cy)
+        for (hit in hits) {
+            when (val trackable = hit.trackable) {
+                is Plane -> {
+                    val isHorizontalUp = trackable.type == Plane.Type.HORIZONTAL_UPWARD_FACING
+                    if (isHorizontalUp &&
+                        trackable.isPoseInPolygon(hit.hitPose) &&
+                        trackable.trackingState == TrackingState.TRACKING &&
+                        trackable.subsumedBy == null
+                    ) {
+                        return hit.createAnchor()
+                    }
+                }
+
+                else -> Unit
+            }
+        }
+        return null
+    }
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "init" -> {
@@ -209,7 +256,7 @@ class SceneViewWrapper(
                 Log.i(TAG, "addModel")
                 val flutterNode = FlutterSceneViewNode.from(call.arguments as Map<String, *>)
                 _mainScope.launch {
-                    addNode(flutterNode)
+                    renderModelAtGround(flutterNode)
                     result.success(true)
                 }
             }

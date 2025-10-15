@@ -43,10 +43,20 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
                 _streamLoadedNodes = _controller!.on<bool>(SceneViewEvent.loadedNodes).listen((data) {});
               },
             ),
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom + 32,
+              left: 32,
+              right: 32,
+              child: ElevatedButton(onPressed: () => _test(), child: Text("Show Jabali")),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void _test() {
+    _controller?.addModel(ModelNode(path: "assets/models/pin_natural.glb", rotation: KotlinFloat3(y: -90)));
   }
 
   void _closeView(bool dispose) {

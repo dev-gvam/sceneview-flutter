@@ -17,7 +17,7 @@ abstract class FlutterSceneViewNode(
                 val r = FlutterRotation.from(map["rotation"] as Map<String, Float>?)
                 val s = FlutterScale.from(map["scale"] as Map<String, Float>?)
                 val scaleUnits = map["scaleUnits"] as Float?
-                return ModelNode(
+                return FlutterReferenceNode(
                     path,
                     p.position,
                     r.rotation,
@@ -30,7 +30,7 @@ abstract class FlutterSceneViewNode(
     }
 }
 
-class ModelNode(
+class FlutterReferenceNode(
     val path: String,
     position: Float3,
     rotation: Float3,
