@@ -1,13 +1,26 @@
+/// Describes the location of the asset.
+enum AssetType {
+  /// Flutter asset folder (e.g. ./assets/gltf)
+  /// See https://docs.flutter.dev/ui/assets/assets-and-images#specifying-assets
+  flutterAsset,
+
+  /// Documents folder for the current app
+  /// This might be useful for downloading files from the internet
+  documents,
+}
+
 class ModelNode {
-  final String id;
+  final AssetType assetType;
   final String path;
+  final String? id;
   final KotlinFloat3? position;
   final KotlinFloat3? rotation;
   final double? scale;
 
   ModelNode({
-    required this.id,
+    required this.assetType,
     required this.path,
+    this.id,
     this.position,
     this.rotation,
     this.scale,
@@ -15,7 +28,9 @@ class ModelNode {
 
   Map<String, dynamic> toMap() {
     final map = {
+      'assetType': assetType.name,
       'path': path,
+      'id': id,
       'position': position?.toMap(),
       'rotation': rotation?.toMap(),
       'scale': scale,

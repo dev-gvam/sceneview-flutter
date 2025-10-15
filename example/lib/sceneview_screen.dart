@@ -62,6 +62,7 @@ class _SceneViewScreenState extends State<SceneViewScreen> {
   void _showModel() {
     _controller?.addModel(
       ModelNode(
+        assetType: AssetType.flutterAsset,
         id: "pin_natural",
         path: "assets/models/pin_natural.glb",
         rotation: KotlinFloat3(y: -90),

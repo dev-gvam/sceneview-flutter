@@ -24,6 +24,7 @@ import io.github.sceneview.node.ModelNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 class SceneViewWrapper(
     context: Context,
@@ -147,21 +148,52 @@ class SceneViewWrapper(
     }
 
     private suspend fun buildNode(flutterNode: FlutterSceneViewNode): ModelNode? {
+        val modelLoader = sceneView?.modelLoader ?: return null
+
         var model: ModelInstance? = null
         var id = ""
+
         when (flutterNode) {
             is FlutterReferenceNode -> {
-                val filePath = Utils.getFlutterAssetKey(activity, flutterNode.path)
-                id = flutterNode.id
-                Log.d(TAG, filePath)
-                model = sceneView?.modelLoader?.loadModelInstance(filePath)
+                id = flutterNode.id ?: ""
+
+                when (flutterNode.assetType) {
+                    AssetType.flutterAsset -> {
+                        val assetKey = Utils.getFlutterAssetKey(activity, flutterNode.path)
+                        Log.d(TAG, "Loading GLB from flutterAsset: $assetKey")
+                        try {
+                            model = modelLoader.loadModelInstance(assetKey)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error loading model from asset: $assetKey -- $e")
+                        }
+                    }
+
+                    AssetType.documents -> {
+                        val file = File(flutterNode.path)
+                        Log.d(TAG, "file --> ${file.exists()}")
+                        if (!file.exists()) {
+                            Log.e(TAG, "Document file not found: ${flutterNode.path}")
+                            return null
+                        }
+                        Log.d(TAG, "Loading GLB from documents: ${file.absolutePath}")
+                        try {
+                            model = modelLoader.createModelInstance(file)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error loading model from document: $e")
+                        }
+                    }
+                }
             }
         }
+
         if (model != null) {
-            val modelNode = ModelNode(modelInstance = model, scaleToUnits = 1.0f).apply {
+            val modelNode = ModelNode(
+                modelInstance = model,
+                scaleToUnits = flutterNode.scaleUnits
+            ).apply {
                 transform(
                     position = flutterNode.position,
-                    rotation = flutterNode.rotation,
+                    rotation = flutterNode.rotation
                 )
                 isTouchable = true
                 isEditable = true
@@ -186,26 +218,6 @@ class SceneViewWrapper(
         val w = view.width.coerceAtLeast(1)
         val h = view.height.coerceAtLeast(1)
         return w / 2f to h / 2f
-    }
-
-    private suspend fun createModelNodeFromFlutterAsset(
-        id: String,
-        assetFilePath: String,
-        scale: Float = 1.0f
-    ): ModelNode? {
-        if (assetFilePath.isEmpty()) return null
-        val flutterAsset = Utils.getFlutterAssetKey(activity, assetFilePath)
-        val model: ModelInstance? = sceneView?.modelLoader?.loadModelInstance(flutterAsset)
-
-        return model?.let {
-            ModelNode(modelInstance = model, scaleToUnits = scale).apply {
-                onSingleTapConfirmed = { _ ->
-                    val event = mapOf("type" to "nodeTouched", "data" to id)
-                    eventSink?.success(event)
-                    true
-                }
-            }
-        }
     }
 
     private suspend fun renderModelAtGround(flutterNode: FlutterSceneViewNode): Boolean {

@@ -3,6 +3,7 @@ package io.github.sceneview.sceneview_flutter
 import dev.romainguy.kotlin.math.Float3
 
 abstract class FlutterSceneViewNode(
+    val id: String? = null,
     val position: Float3 = Float3(0f, 0f, 0f),
     val rotation: Float3 = Float3(0f, 0f, 0f),
     val scale: Float3 = Float3(0f, 0f, 0f),
@@ -11,36 +12,60 @@ abstract class FlutterSceneViewNode(
 
     companion object {
         fun from(map: Map<String, *>): FlutterSceneViewNode {
-            val id = map["id"] as? String ?: ""
-            val path = map["path"] as String?
-            if (path != null) {
-                val p = FlutterPosition.from(map["position"] as Map<String, Float>?)
-                val r = FlutterRotation.from(map["rotation"] as Map<String, Float>?)
-                val s = FlutterScale.from(map["scale"] as Map<String, Float>?)
-                val scaleUnits = map["scaleUnits"] as Float?
-                return FlutterReferenceNode(
-                    id,
-                    path,
-                    p.position,
-                    r.rotation,
-                    s.scale,
-                    scaleUnits ?: 1.0f,
-                )
+            val id = map["id"]?.toString()
+
+            val assetTypeStr = map["assetType"]?.toString()
+                ?: throw IllegalArgumentException("assetType is required")
+            val assetType = try {
+                AssetType.valueOf(assetTypeStr)
+            } catch (e: IllegalArgumentException) {
+                throw IllegalArgumentException("Unknown assetType: '$assetTypeStr' -- $e")
             }
-            throw Exception()
+
+            val path = map["path"]?.toString()
+                ?: throw IllegalArgumentException("path is required")
+
+            fun vec3(key: String, def: Float3): Float3 {
+                val m = map[key] as? Map<*, *> ?: return def
+                val x = (m["x"] as? Number)?.toFloat() ?: def.x
+                val y = (m["y"] as? Number)?.toFloat() ?: def.y
+                val z = (m["z"] as? Number)?.toFloat() ?: def.z
+                return Float3(x, y, z)
+            }
+
+            val position = vec3("position", Float3(0f, 0f, 0f))
+            val rotation = vec3("rotation", Float3(0f, 0f, 0f))
+            val scale = vec3("scale", Float3(1f, 1f, 1f))
+            val scaleUnits = (map["scaleUnits"] as? Number)?.toFloat() ?: 1.0f
+
+            return FlutterReferenceNode(
+                assetType = assetType,
+                path = path,
+                id = id,
+                position = position,
+                rotation = rotation,
+                scale = scale,
+                scaleUnits = scaleUnits
+            )
         }
     }
 }
 
+enum class AssetType {
+    flutterAsset,
+    documents
+}
+
 class FlutterReferenceNode(
-    val id: String,
+    val assetType: AssetType,
     val path: String,
+    id: String?,
     position: Float3,
     rotation: Float3,
     scale: Float3,
     scaleUnits: Float
 ) :
-    FlutterSceneViewNode(position, rotation, scale, scaleUnits)
+    FlutterSceneViewNode(id, position, rotation, scale, scaleUnits)
 
 class FlutterPosition(val position: Float3) {
     companion object {
