@@ -1,6 +1,6 @@
 name: sceneview_flutter
 description: A demonstration of how to integrate SceneView in flutter.
-version: 0.6.0
+version: 0.6.1
 homepage: https://github.com/SceneView
 
 environment:
