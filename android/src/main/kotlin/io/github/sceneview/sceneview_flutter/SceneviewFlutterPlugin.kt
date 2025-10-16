@@ -73,23 +73,19 @@ class SceneviewFlutterPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "isAvailable" -> {
-                val ctx = activity.applicationContext ?: return result.error(
-                    "NO_CONTEXT",
-                    "No context",
-                    null
-                )
+                var event = mapOf("availability" to "NOT_LOADED_YET", "status" to false)
+                val ctx = activity.applicationContext ?: return result.success(event)
+
                 val availability = ArCoreApk.getInstance().checkAvailability(ctx)
 
                 if (availability == ArCoreApk.Availability.SUPPORTED_NOT_INSTALLED || availability == ArCoreApk.Availability.SUPPORTED_APK_TOO_OLD) {
                     ArCoreApk.getInstance().requestInstall(activity, true)
                 } else if (availability != ArCoreApk.Availability.SUPPORTED_INSTALLED) {
-                    return result.error(
-                        "NO_COMPATIBLE",
-                        "Device not compatible",
-                        null
-                    )
+                    event = mapOf("availability" to availability.name, "status" to false)
+                    return result.success(event)
                 }
-                return result.success(true)
+                event = mapOf("availability" to availability.name, "status" to true)
+                return result.success(event)
             }
 
             else -> result.notImplemented()
