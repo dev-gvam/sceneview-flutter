@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 export 'models/custom_models.dart';
@@ -14,6 +15,7 @@ class SceneviewFlutter {
       var data = AvailableResult.fromJson(json);
       return data.status;
     } catch (e) {
+      debugPrint("Error $e");
       return false;
     }
   }
@@ -25,7 +27,7 @@ class AvailableResult {
 
   AvailableResult({required this.availavility, required this.status});
 
-  factory AvailableResult.fromJson(Map<String, dynamic> json) {
+  factory AvailableResult.fromJson(dynamic json) {
     if (!json.containsKey("availability") || json["availability"] == null) {
       throw ArgumentError("AvailableResult - availability IS NULL");
     }
